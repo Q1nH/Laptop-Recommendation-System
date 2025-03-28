@@ -89,10 +89,16 @@ if predict_button:
         st.write(f"Predicted Laptop Category: {category_name}")
         st.write(f"Estimated Laptop Price: RM{myr_price:.2f}")
 
-        matching_laptops = laptop_data[laptop_data['Category'] == classification_prediction]
+        conversion_rate = 4.435  # USD to MYR
+        matching_laptops = laptop_data[laptop_data['Category'] == classification_prediction].copy()
+        
         if not matching_laptops.empty:
-            st.subheader("Possible Laptop Models:")
-            st.write(matching_laptops[['Model', 'brand', 'Price']])
+            matching_laptops['Price_MYR'] = matching_laptops['Price'] * conversion_rate
+            matching_laptops['Price_MYR'] = matching_laptops['Price_MYR'].apply(lambda x: f"RM{x:.2f}")
+        
+            st.subheader("Possible Laptop Models (Prices in MYR):")
+            st.write(matching_laptops[['Model', 'brand', 'Price_MYR']])
+
         else:
             st.write("No matching laptops found in the dataset.")
 
