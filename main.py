@@ -91,8 +91,14 @@ if predict_button:
     input_df = input_df.reindex(columns=features, fill_value=0)
 
     for col, le in label_encoders.items():
-        if col in input_df.columns:
-            input_df[col] = le.transform(input_df[col])
+    if col in input_df.columns:
+        val = input_df[col].iloc[0]
+        if val in le.classes_:
+            input_df[col] = le.transform([val])
+        else:
+            st.error(f"Invalid input for '{col}': '{val}' not in trained classes.")
+            st.stop()
+)
 
     input_df = input_df.astype(float)
 
