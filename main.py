@@ -39,24 +39,46 @@ st.sidebar.title("Laptop Recommendation System")
 st.sidebar.write("Enter your preferences and click below!")
 
 user_input = {}
+
+# Step 1: First ask for the brand
+brand_options = sorted(laptop_data['brand'].unique())
+selected_brand = st.sidebar.selectbox("Select brand", brand_options)
+user_input['brand'] = selected_brand
+
+# Filter the dataset based on selected brand
+filtered_data = laptop_data[laptop_data['brand'] == selected_brand]
+
+# Step 2: For each remaining feature, show only relevant values from filtered_data
 for feature in features:
-    if feature in label_encoders:
-        options = list(label_encoders[feature].classes_)
+    if feature == 'brand':
+        continue
+    elif feature in label_encoders:
+        options = sorted(filtered_data[feature].dropna().unique())
+        if len(options) == 0:
+            options = list(label_encoders[feature].classes_)  # fallback
         user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
     elif feature == "display_size":
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_display_sizes)
+        options = sorted(filtered_data['display_size'].dropna().unique())
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
     elif feature == "resolution_width":
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_resolution_widths)
+        options = sorted(filtered_data['resolution_width'].dropna().unique())
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
     elif feature == "resolution_height":
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_resolution_heights)
+        options = sorted(filtered_data['resolution_height'].dropna().unique())
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
     elif feature == "num_cores":
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_num_cores)
+        options = sorted(filtered_data['num_cores'].dropna().unique())
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
     elif feature == "num_threads":
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_num_threads)
+        options = sorted(filtered_data['num_threads'].dropna().unique())
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
     elif feature == "ram_memory":
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_ram_memory)
+        options = sorted(filtered_data['ram_memory'].dropna().unique())
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
     else:
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", list(range(1, 17)))
+        options = sorted(filtered_data[feature].dropna().unique())
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
+
 
 predict_button = st.sidebar.button("Get Recommendation")
 
