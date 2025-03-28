@@ -39,46 +39,24 @@ st.sidebar.title("Laptop Recommendation System")
 st.sidebar.write("Enter your preferences and click below!")
 
 user_input = {}
-
-# Step 1: First ask for the brand
-brand_options = sorted(laptop_data['brand'].unique())
-selected_brand = st.sidebar.selectbox("Select brand", brand_options)
-user_input['brand'] = selected_brand
-
-# Filter the dataset based on selected brand
-filtered_data = laptop_data[laptop_data['brand'] == selected_brand]
-
-# Step 2: For each remaining feature, show only relevant values from filtered_data
 for feature in features:
-    if feature == 'brand':
-        continue
-    elif feature in label_encoders:
-        options = sorted(filtered_data[feature].dropna().unique())
-        if len(options) == 0:
-            options = list(label_encoders[feature].classes_)  # fallback
+    if feature in label_encoders:
+        options = list(label_encoders[feature].classes_)
         user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
     elif feature == "display_size":
-        options = sorted(filtered_data['display_size'].dropna().unique())
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_display_sizes)
     elif feature == "resolution_width":
-        options = sorted(filtered_data['resolution_width'].dropna().unique())
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_resolution_widths)
     elif feature == "resolution_height":
-        options = sorted(filtered_data['resolution_height'].dropna().unique())
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_resolution_heights)
     elif feature == "num_cores":
-        options = sorted(filtered_data['num_cores'].dropna().unique())
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_num_cores)
     elif feature == "num_threads":
-        options = sorted(filtered_data['num_threads'].dropna().unique())
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_num_threads)
     elif feature == "ram_memory":
-        options = sorted(filtered_data['ram_memory'].dropna().unique())
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", possible_ram_memory)
     else:
-        options = sorted(filtered_data[feature].dropna().unique())
-        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", options)
-
+        user_input[feature] = st.sidebar.selectbox(f"Select {feature}", list(range(1, 17)))
 
 predict_button = st.sidebar.button("Get Recommendation")
 
@@ -91,14 +69,8 @@ if predict_button:
     input_df = input_df.reindex(columns=features, fill_value=0)
 
     for col, le in label_encoders.items():
-    if col in input_df.columns:
-        val = input_df[col].iloc[0]
-        if val in le.classes_:
-            input_df[col] = le.transform([val])
-        else:
-            st.error(f"Invalid input for '{col}': '{val}' not in trained classes.")
-            st.stop()
-)
+        if col in input_df.columns:
+            input_df[col] = le.transform(input_df[col])
 
     input_df = input_df.astype(float)
 
