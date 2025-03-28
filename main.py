@@ -81,9 +81,13 @@ if predict_button:
         category_labels = {1: "Gaming", 2: "Business", 3: "Budget-Friendly"}
         category_name = category_labels.get(classification_prediction, "Unknown")
 
+        usd_price = regression_prediction
+        conversion_rate = 4.435  # USD to MYR
+        myr_price = usd_price * conversion_rate
+        
         st.subheader("Recommendation Results:")
         st.write(f"Predicted Laptop Category: {category_name}")
-        st.write(f"Estimated Laptop Price: RM{regression_prediction:.2f}")
+        st.write(f"Estimated Laptop Price: RM{myr_price:.2f}")
 
         matching_laptops = laptop_data[laptop_data['Category'] == classification_prediction]
         if not matching_laptops.empty:
