@@ -83,7 +83,7 @@ if predict_button:
 
         st.subheader("Recommendation Results:")
         st.write(f"Predicted Laptop Category: {category_name}")
-        st.write(f"Estimated Laptop Price: ${regression_prediction:.2f}")
+        st.write(f"Estimated Laptop Price: RM{regression_prediction:.2f}")
 
         matching_laptops = laptop_data[laptop_data['Category'] == classification_prediction]
         if not matching_laptops.empty:
