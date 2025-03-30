@@ -2,6 +2,7 @@ import streamlit as st
 import joblib
 import pandas as pd
 
+
 # Sidebar Navigation
 st.sidebar.title("Navigation")
 model_option = st.sidebar.selectbox("Select Recommendation Approach", [
@@ -89,15 +90,28 @@ if predict_button:
         st.write(f"Predicted Laptop Category: {category_name}")
         st.write(f"Estimated Laptop Price: RM{myr_price:.2f}")
 
-        matching_laptops = laptop_data[laptop_data['Category'] == classification_prediction]
+        # Filter laptops based on predicted category AND price range
+        price_lower = usd_price - (500 / conversion_rate)
+        price_upper = usd_price + (500 / conversion_rate)
+
+        filtered_laptops = laptop_data.copy()
+
+        matching_laptops = filtered_laptops[
+            (filtered_laptops['Category'] == classification_prediction) &
+            (filtered_laptops['Price'] >= price_lower) &
+            (filtered_laptops['Price'] <= price_upper)
+        ].copy()
+
         if not matching_laptops.empty:
+            if matching_laptops['brand'].dtype != 'O':  # Not object → likely numeric
+                matching_laptops['brand'] = label_encoders['brand'].inverse_transform(matching_laptops['brand'].astype(int))
             matching_laptops['Price_MYR'] = matching_laptops['Price'] * conversion_rate
             matching_laptops['Price_MYR'] = matching_laptops['Price_MYR'].apply(lambda x: f"RM{x:.2f}")
-            st.subheader("Possible Laptop Models:")
+            st.subheader("Possible Laptop Models (within ±RM500 of your estimated price):")
             st.write(matching_laptops[['Model', 'brand', 'Price_MYR']])
-
         else:
-            st.write("No matching laptops found in the dataset.")
+            st.write("No matching laptops found within your budget and category.")
+
 
     except Exception as e:
         st.error(f"Prediction Error: {str(e)}")
